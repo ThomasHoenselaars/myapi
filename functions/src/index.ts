@@ -38,7 +38,7 @@ app.post('/api/create', (req: Request, res: Response) => {
         console.log(error);
         return res.status(500).send(error);
       }
-    })();
+    })().catch(err => console.log(err));
 });
 
 // READ ALL
@@ -51,7 +51,7 @@ app.get('/api/readall', (_: Request, res: Response) => {
       await query.get().then((querySnapshot: QuerySnapshot) => {
         const docs = querySnapshot.docs;
 
-        for (let doc of docs) {
+        for (const doc of docs) {
           const selectedItem: ItemModel = {
             id: doc.id,
             item: doc.data().item,
@@ -66,7 +66,7 @@ app.get('/api/readall', (_: Request, res: Response) => {
       console.log(error);
       return res.status(500).send(error);
     }
-  })();
+  })().catch(err => console.log(err));
 })
 
 // READ ID
@@ -83,7 +83,7 @@ app.get('/api/read/:item_id', (req: Request, res: Response) => {
       console.log(error)
       return res.status(500).send(error);
     }
-  })();
+  })().catch(err => console.log(err));
 })
 
 // UPDATE
@@ -101,7 +101,7 @@ app.put('/api/update/:item_id', (req: Request, res: Response) => {
       console.log(error);
       return res.status(500).send(error);
     }
-  })();
+  })().catch(err => console.log(err));
 })
 
 // DELETE
@@ -118,7 +118,7 @@ app.put('/api/delete/:item_id', (req: Request, res: Response) => {
       console.log(error);
       return res.status(500).send(error);
     }
-  })();
+  })().catch(err => console.log(err));
 })
 
 exports.app = functions.https.onRequest(app);
