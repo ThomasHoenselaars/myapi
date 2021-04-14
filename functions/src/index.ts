@@ -1,4 +1,4 @@
-import { FirebaseFirestore, QuerySnapshot,  } from '@firebase/firestore-types';
+import { FirebaseFirestore, QuerySnapshot } from '@firebase/firestore-types';
 import { Request, Response, Application } from 'express';
 import { serviceAccount } from './permissions';
 
