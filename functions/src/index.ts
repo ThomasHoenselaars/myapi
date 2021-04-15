@@ -105,7 +105,7 @@ app.put('/api/update/:item_id', (req: Request, res: Response) => {
 })
 
 // DELETE
-app.put('/api/delete/:item_id', (req: Request, res: Response) => {
+app.delete('/api/delete/:item_id', (req: Request, res: Response) => {
   (async () => {
     try {
       const query = req.params.item_id;
