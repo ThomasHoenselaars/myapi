@@ -1,125 +1,44 @@
-import { FirebaseFirestore, QuerySnapshot } from '@firebase/firestore-types';
-import { Request, Response, Application } from 'express';
+import { FirebaseFirestore } from '@firebase/firestore-types';
+import { Application } from 'express';
 import { serviceAccount } from './permissions';
+import { create } from './helpers/create';
+import { readAll } from './helpers/readAll';
+import { updateById } from './helpers/updateById';
+import { isAuthenticated } from './helpers/isAuthenticated';
+import { readById } from './helpers/readById';
+import { deleteById } from './helpers/deleteById';
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const express = require('express');
 const cors = require('cors');
-
-interface ItemModel {
-  id: string,
-  item: string,
-}
+const morgan = require('morgan');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: 'https://myapi-2eba3..firebaseio.com'
 })
 
-const db: FirebaseFirestore = admin.firestore();
+export const db: FirebaseFirestore = admin.firestore();
 const app: Application = express();
 
 app.use(cors({ origin: true }));
+app.use(morgan('combined'));
 
 // CREATE
-app.post('/api/create', (req: Request, res: Response) => {
-  (async () => {
-      try {
-        const { item, id } = req.body;
-
-        await db
-          .collection('items')
-          .doc(`/${id}/`)
-          .set({ item });
-
-        return res.status(200).send(`Item has been added: ${item}`);
-      } catch (error) {
-        console.log(error);
-        return res.status(500).send(error);
-      }
-    })().catch(err => console.log(err));
-});
+app.post('/api/create', isAuthenticated, create);
 
 // READ ALL
-app.get('/api/readall', (_: Request, res: Response) => {
-  (async () => {
-    try {
-      const query = db.collection('items');
-      const response: ItemModel[] = [];
-
-      await query.get().then((querySnapshot: QuerySnapshot) => {
-        const docs = querySnapshot.docs;
-
-        for (const doc of docs) {
-          const selectedItem: ItemModel = {
-            id: doc.id,
-            item: doc.data().item,
-          }
-
-          response.push(selectedItem);
-        }
-      })
-
-      return res.status(200).send(response);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send(error);
-    }
-  })().catch(err => console.log(err));
-})
+app.get('/api/readall', isAuthenticated, readAll)
 
 // READ ID
-app.get('/api/read/:item_id', (req: Request, res: Response) => {
-  (async () => {
-    try {
-      const query = req.params.item_id;
-      const document = db.collection('items').doc(query);
-      const item = await document.get();
-      const response = item.data();
-
-    return res.status(200).send(response);
-    } catch (error) {
-      console.log(error)
-      return res.status(500).send(error);
-    }
-  })().catch(err => console.log(err));
-})
+app.get('/api/read/:item_id', isAuthenticated, readById)
 
 // UPDATE
-app.put('/api/update/:item_id', (req: Request, res: Response) => {
-  (async () => {
-    try {
-      const query = req.params.item_id;
-      const document = db.collection('items').doc(query);
-      const { item } = req.body;
-
-      await document.update({ item });
-
-      return res.status(200).send(`Item updated with: ${item}`);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send(error);
-    }
-  })().catch(err => console.log(err));
-})
+app.put('/api/update/:item_id', isAuthenticated, updateById)
 
 // DELETE
-app.delete('/api/delete/:item_id', (req: Request, res: Response) => {
-  (async () => {
-    try {
-      const query = req.params.item_id;
-      const document = db.collection('items').doc(query);
-
-      await document.delete();
-
-      return res.status(200).send(`Item deleted: ${query}`);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send(error);
-    }
-  })().catch(err => console.log(err));
-})
+app.delete('/api/delete/:item_id', isAuthenticated, deleteById)
 
 exports.app = functions.https.onRequest(app);
 
