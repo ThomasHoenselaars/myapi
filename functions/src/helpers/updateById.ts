@@ -5,7 +5,7 @@ export const updateById: ExpressRoute = async (req, res) => {
   try {
     const query = req.params.item_id;
     const document = db.collection('items').doc(query);
-    const { item } = req.body;
+    const { item } = JSON.parse(req.body);
 
     await document.update({ item });
 

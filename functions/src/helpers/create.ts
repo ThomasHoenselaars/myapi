@@ -3,7 +3,7 @@ import { ExpressRoute } from '../types/ExpressRoute';
 
 export const create: ExpressRoute = async (req, res) => {
   try {
-    const { item, id } = req.body;
+    const { item, id } = JSON.parse(req.body);
 
     await db
       .collection('items')
